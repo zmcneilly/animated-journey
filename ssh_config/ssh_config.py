@@ -3,8 +3,7 @@ This file will contain the ssh_config class used by other methods, scripts, and 
 """
 import datetime
 import time
-import ping3
-from ssh_config.hosts import test_connection, get_host_key
+from ssh_config.hosts import test_connection, get_host_key, ping
 import concurrent.futures as futures
 from typing import Set
 
@@ -105,12 +104,12 @@ class SshConfig:
         threads = {}
         with futures.ThreadPoolExecutor(max_workers=len(self.__aliases)) as executor:
             for alias in self.__aliases:
-                threads[alias] = (executor.submit(ping3.ping, alias, timeout=3))
+                threads[alias] = (executor.submit(ping, alias, timeout=3))
         for alias in self.__aliases:
             while threads[alias].running():
                 time.sleep(0.1)
             try:
-                if threads[alias].result() is not None:
+                if threads[alias].result():
                     return True
             except Exception:
                 continue

@@ -1,6 +1,8 @@
 import socket
 import paramiko
-import ping3
+import os
+from platform   import system as system_name  # Returns the system/OS name
+from subprocess import call   as system_call  # Execute a shell command
 
 
 def test_connection(host: str, port: int=22) -> bool:
@@ -10,11 +12,6 @@ def test_connection(host: str, port: int=22) -> bool:
     :param port: The port to attempt connecting to
     :return: A bool indicating if the attempt was successful or not.
     """
-    try:
-        if ping3.ping(host, timeout=3) is None:
-            return False
-    except socket.gaierror:
-        return False
     sock = socket.socket()
     try:
         sock.connect((host, port))
@@ -44,3 +41,20 @@ def get_host_key(host: str, port: int=22) -> str:
         return results.get_base64()
     finally:
         sock.close()
+
+
+def ping(host):
+    """
+    Returns True if host (str) responds to a ping request.
+    Remember that a host may not respond to a ping (ICMP) request even if the host name is valid.
+    """
+
+    # Ping command count option as function of OS
+    param = '-n' if system_name().lower()=='windows' else '-c'
+
+    # Building the command. Ex: "ping -c 1 google.com"
+    command = ['ping', param, '1', host]
+
+    # Pinging
+    with open(os.devnull, 'w') as devnull:
+        return system_call(command, stderr=devnull, stdout=devnull) == 0

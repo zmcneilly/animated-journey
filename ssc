@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+TMP_FILE=$(mktemp)
+
+/usr/bin/env python3 ssc.py --output ${TMP_FILE} "$@"
+
+#/usr/bin/env bash ${TMP_FILE}
+
+#rm ${TMP_FILE}

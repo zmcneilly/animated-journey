@@ -22,7 +22,7 @@ def get_configuration_file() -> str:
         ssh_config_file = Path(os.environ["SSH_CONFIG"])
     elif "HOME" in os.environ:
         ssh_config_file = Path("{}/{}".format(os.environ["HOME"], ssh_config_file_name))
-    return str(ssh_config_file.absolute())
+    return str(ssh_config_file.resolve())
 
 
 def load_configuration_file() -> Set[SshConfig]:
@@ -32,7 +32,7 @@ def load_configuration_file() -> Set[SshConfig]:
     """
     configuration_path = Path(get_configuration_file())
     if configuration_path.exists():
-        with open(configuration_path.absolute(), "rb") as __f:
+        with open(str(configuration_path.resolve()), "rb") as __f:
             return pickle.load(__f)
     else:
         return set()
