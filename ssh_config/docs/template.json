@@ -1,0 +1,23 @@
+{
+  "hostname": {
+    "aliases": [
+      "hostname 2",
+      "ip address",
+      "etc"
+    ],
+    "known_keys": [
+      "list of SSH keys"
+    ],
+    "known_users": {
+      "root": {
+        "install_key": true,
+        "key_location": "/root/.ssh/authorized_keys",
+        "last_used": "20180815T10:32:45"
+      },
+      "zmcneilly": {
+        "install_key": false,
+        "last_used": "20180815T10:32:45"
+      }
+    }
+  }
+}
