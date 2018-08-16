@@ -10,7 +10,10 @@ def test_connection(host: str, port: int=22) -> bool:
     :param port: The port to attempt connecting to
     :return: A bool indicating if the attempt was successful or not.
     """
-    if ping3.ping(host, timeout=3) is None:
+    try:
+        if ping3.ping(host, timeout=3) is None:
+            return False
+    except socket.gaierror:
         return False
     sock = socket.socket()
     try:
