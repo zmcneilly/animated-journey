@@ -1,2 +1,2 @@
 paramiko==2.4.1
-ping3
+cryptography

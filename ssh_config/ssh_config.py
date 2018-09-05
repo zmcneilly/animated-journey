@@ -3,18 +3,21 @@ This file will contain the ssh_config class used by other methods, scripts, and 
 """
 import datetime
 import time
+import paramiko
 from ssh_config.hosts import test_connection, get_host_key, ping
 import concurrent.futures as futures
 from typing import Set
 
 
 class SshUser:
-    def __init__(self, name: str="", desire_key: bool=False, key_location: str=""):
+    def __init__(self, name: str="", desire_key: bool=False, key_location: str="", key_password: str=""):
         self.name = name
         self.desire_key = desire_key
         self.__key_installed = False
         self.key_location = key_location
+        self.key_password = key_password
         self.__last_used = datetime.datetime.now()
+        self.passwd = ""
 
     def __hash__(self):
         return hash(self.name)
@@ -121,4 +124,36 @@ class SshConfig:
         elif self.public_host_key != "" and self.public_host_key != get_host_key(self.hostname, self.port):
             return False
         return True
+
+    def get_ssh_connection(self, user: SshUser) -> paramiko.SSHClient:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        if user.key_password == "":
+            key_password = None
+        else:
+            key_password = user.key_password
+
+        try:
+            ssh.connect(self.working_alias, username=user.name, key_filename=user.key_location, passphrase=key_password)
+            ssh.exec_command('ls')
+        except Exception:
+            try:
+                ssh.connect(self.working_alias, username=user.name, password=user.passwd)
+                ssh.exec_command('ls')
+            except Exception:
+                return None
+        return ssh
+
+    def validate_login(self, user: SshUser=None) -> bool:
+        if user is None:
+            for configured_user in self.users:
+                if not self.validate_login(configured_user):
+                    return False
+        else:
+            ssh = self.get_ssh_connection(user)
+            if ssh is None:
+                return False
+            else:
+                ssh.close()
+                return True
 
